@@ -1,6 +1,16 @@
-domain: htw-berlin.de
+domain: k8s.htw-berlin.de
 layout:
 - go.kubebuilder.io/v3
 projectName: discovery-operator
-repo: github.com/ahmedmahmo/dummy
+repo: github.com/ahmedmahmo/discovery-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: k8s.htw-berlin.de
+  group: config
+  kind: SecretCopier
+  path: github.com/ahmedmahmo/discovery-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

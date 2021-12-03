@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: b125b36f.htw-berlin.de
+  resourceName: 017863e5.k8s.htw-berlin.de

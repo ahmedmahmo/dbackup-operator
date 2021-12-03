@@ -1,0 +1,6 @@
+domain: htw-berlin.de
+layout:
+- go.kubebuilder.io/v3
+projectName: discovery-operator
+repo: github.com/ahmedmahmo/dummy
+version: "3"

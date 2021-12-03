@@ -1,6 +1,6 @@
 module github.com/ahmedmahmo/discovery-operator
 
-go 1.17
+go 1.16
 
 require (
 	k8s.io/apimachinery v0.22.1

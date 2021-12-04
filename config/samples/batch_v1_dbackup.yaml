@@ -3,4 +3,20 @@ kind: Dbackup
 metadata:
   name: dbackup-sample
 spec:
-  # TODO(user): Add fields here
+  DatabaseTarget: "postgres.postgres.svc.cluster.local:port"
+  bucketEndpoint: "s3://"
+  cloudProvider: "AWS"
+  databaseType: "Postgres"
+  schedule: "*/5 * * * *"
+  backupTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello I'm Backing up
+          restartPolicy: OnFailure

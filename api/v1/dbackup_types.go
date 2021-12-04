@@ -17,11 +17,9 @@ limitations under the License.
 package v1
 
 import (
-	// metadata of all kubernetes objects
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	// kubernetes objects in API group core version 1
+	kubebatchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // DbackupSpec defines the desired state of Dbackup
@@ -30,11 +28,20 @@ type DbackupSpec struct {
 	Schedule string `json:"schedule"`
 
 	//+kubebuilder:validation:MinLength=0
-	DBTarget string `json:"database_target"`
+	DatabaseTarget string `json:"DatabaseTarget"`
+
+	// v1 will support only AWS
+	//+kubebuilder:validation:Enum=AWS
+	CloudProvider string `json:"cloudProvider"`
+
+	//+kubebuilder:validation:MinLength=0
+	BucketEndpoint string `json:"bucketEndpoint"`
 
 	// v1 will only support Postgres
 	//+kubebuilder:validation:Enum=Postgres
-	DBType string `json:"database_type"`
+	DatabaseType string `json:"databaseType"`
+
+	BackupTemplate kubebatchv1.JobTemplateSpec `json:"backupTemplate"`
 
 	// +optional
 	ConcurrencyPolicy Policy `json:"concurrencyPolicy,omitempty"`

@@ -25,6 +25,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	batchv1 "github.com/ahmedmahmo/discovery-operator/api/v1"
+	kubebatchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // DbackupReconciler reconciles a Dbackup object
@@ -36,20 +39,30 @@ type DbackupReconciler struct {
 //+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups/finalizers,verbs=update
+//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Dbackup object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.10.0/pkg/reconcile
 func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
 
-	// TODO(user): your logic here
+	log := log.FromContext(ctx)
+
+	var dbackup batchv1.Dbackup
+	log.Info("reconciling")
+	if err := r.Get(ctx, req.NamespacedName, &dbackup); err != nil {
+		log.Error(err, "unable to fetch CronJob")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	var jobs kubebatchv1.JobList
+	if err := r.List(ctx, &jobs, client.InNamespace(req.Namespace)); err != nil {
+		log.Error(err, "unable to list Jobs")
+		return ctrl.Result{}, err
+	}
+
+	CreateBackupJob(&dbackup)
 
 	return ctrl.Result{}, nil
 }
@@ -59,4 +72,27 @@ func (r *DbackupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&batchv1.Dbackup{}).
 		Complete(r)
+}
+
+func IsBackupFinished(job *kubebatchv1.Job) (bool, kubebatchv1.JobConditionType) {
+	for _, c := range job.Status.Conditions {
+		if (c.Type == kubebatchv1.JobComplete || c.Type == kubebatchv1.JobFailed) && c.Status == corev1.ConditionTrue {
+			return true, c.Type
+		}
+	}
+
+	return false, ""
+}
+
+func CreateBackupJob(backupJob *batchv1.Dbackup) (*kubebatchv1.Job, error) {
+
+	job := &kubebatchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      backupJob.Name,
+			Namespace: backupJob.Namespace,
+		},
+		Spec: *backupJob.Spec.BackupTemplate.Spec.DeepCopy(),
+	}
+
+	return job, nil
 }

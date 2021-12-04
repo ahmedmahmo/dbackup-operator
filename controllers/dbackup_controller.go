@@ -62,8 +62,19 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 
-	CreateBackupJob(&dbackup)
+	log.V(1).Info(dbackup.Name)
+	job, err := CreateBackupJob(&dbackup)
+	if err != nil {
+		log.Error(err, "unable to create job from teplate")
 
+	}
+
+	if err := r.Create(ctx, job); err != nil {
+		log.Error(err, "unable to create Job for Dbackup", "job", job)
+		return ctrl.Result{}, err
+	}
+
+	log.V(1).Info("created Job for Dbackup run", "job", job)
 	return ctrl.Result{}, nil
 }
 

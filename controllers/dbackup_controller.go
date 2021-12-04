@@ -24,29 +24,29 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	configv1alpha1 "github.com/ahmedmahmo/discovery-operator/api/v1alpha1"
+	batchv1 "github.com/ahmedmahmo/discovery-operator/api/v1"
 )
 
-// SecretCopierReconciler reconciles a SecretCopier object
-type SecretCopierReconciler struct {
+// DbackupReconciler reconciles a Dbackup object
+type DbackupReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=config.k8s.htw-berlin.de,resources=secretcopiers,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=config.k8s.htw-berlin.de,resources=secretcopiers/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=config.k8s.htw-berlin.de,resources=secretcopiers/finalizers,verbs=update
+//+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=batch.k8s.htw-berlin.de,resources=dbackups/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the SecretCopier object against the actual cluster state, and then
+// the Dbackup object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.10.0/pkg/reconcile
-func (r *SecretCopierReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
@@ -55,8 +55,8 @@ func (r *SecretCopierReconciler) Reconcile(ctx context.Context, req ctrl.Request
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *SecretCopierReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DbackupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&configv1alpha1.SecretCopier{}).
+		For(&batchv1.Dbackup{}).
 		Complete(r)
 }

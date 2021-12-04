@@ -1,0 +1,20 @@
+# permissions for end users to view dbackups.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dbackup-viewer-role
+rules:
+- apiGroups:
+  - batch.k8s.htw-berlin.de
+  resources:
+  - dbackups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch.k8s.htw-berlin.de
+  resources:
+  - dbackups/status
+  verbs:
+  - get

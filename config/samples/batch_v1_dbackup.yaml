@@ -1,0 +1,6 @@
+apiVersion: batch.k8s.htw-berlin.de/v1
+kind: Dbackup
+metadata:
+  name: dbackup-sample
+spec:
+  # TODO(user): Add fields here

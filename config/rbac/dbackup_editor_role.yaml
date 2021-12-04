@@ -1,13 +1,13 @@
-# permissions for end users to edit secretcopiers.
+# permissions for end users to edit dbackups.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: secretcopier-editor-role
+  name: dbackup-editor-role
 rules:
 - apiGroups:
-  - config.k8s.htw-berlin.de
+  - batch.k8s.htw-berlin.de
   resources:
-  - secretcopiers
+  - dbackups
   verbs:
   - create
   - delete
@@ -17,8 +17,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - config.k8s.htw-berlin.de
+  - batch.k8s.htw-berlin.de
   resources:
-  - secretcopiers/status
+  - dbackups/status
   verbs:
   - get

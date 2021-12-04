@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	configv1alpha1 "github.com/ahmedmahmo/discovery-operator/api/v1alpha1"
+	batchv1 "github.com/ahmedmahmo/discovery-operator/api/v1"
 	"github.com/ahmedmahmo/discovery-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
@@ -44,7 +44,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(configv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(batchv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -78,11 +78,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.SecretCopierReconciler{
+	if err = (&controllers.DbackupReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "SecretCopier")
+		setupLog.Error(err, "unable to create controller", "controller", "Dbackup")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

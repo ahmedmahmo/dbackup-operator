@@ -1,7 +1,7 @@
 apiVersion: batch.k8s.htw-berlin.de/v1
 kind: Dbackup
 metadata:
-  name: dbackup-sample
+  name: dbackup-postgres
 spec:
   databaseTarget: "postgres.postgres.svc.cluster.local:port"
   bucketEndpoint: "s3://"

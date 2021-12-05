@@ -36,9 +36,6 @@ spec:
           spec:
             description: DbackupSpec defines the desired state of Dbackup
             properties:
-              DatabaseTarget:
-                minLength: 0
-                type: string
               backupTemplate:
                 description: JobTemplateSpec describes the data a Job should have
                   when created from a template
@@ -7751,6 +7748,9 @@ spec:
                 - Forbid
                 - Replace
                 type: string
+              databaseTarget:
+                minLength: 0
+                type: string
               databaseType:
                 description: v1 will only support Postgres
                 enum:
@@ -7760,10 +7760,10 @@ spec:
                 minLength: 0
                 type: string
             required:
-            - DatabaseTarget
             - backupTemplate
             - bucketEndpoint
             - cloudProvider
+            - databaseTarget
             - databaseType
             - schedule
             type: object

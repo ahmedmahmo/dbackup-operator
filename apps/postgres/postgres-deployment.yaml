@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data-pvc
+      containers:
+        - name: postgres
+          image: postgres
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: data
+          imagePullPolicy: Always
+          tty: true
+          env:
+            - name: POSTGRES_PASSWORD
+              value: dummydummy
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata

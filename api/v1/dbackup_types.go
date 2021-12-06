@@ -28,7 +28,7 @@ type DbackupSpec struct {
 	Schedule string `json:"schedule"`
 
 	//+kubebuilder:validation:MinLength=0
-	DatabaseTarget string `json:"DatabaseTarget"`
+	DatabaseTarget string `json:"databaseTarget"`
 
 	// v1 will support only AWS
 	//+kubebuilder:validation:Enum=AWS
@@ -65,9 +65,6 @@ const (
 type DbackupStatus struct {
 	// +optional
 	Active []corev1.ObjectReference `json:"active,omitempty"`
-
-	// +optional
-	LastBackupTime *metav1.Time `json:"lastScheduleTime,omitempty"`
 }
 
 //+kubebuilder:object:root=true

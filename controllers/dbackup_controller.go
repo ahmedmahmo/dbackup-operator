@@ -19,7 +19,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	// "math/rand"
 	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,7 +31,7 @@ import (
 	kubebatchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ref "k8s.io/client-go/tools/reference"
+	reference "k8s.io/client-go/tools/reference"
 )
 
 // DbackupReconciler reconciles a Dbackup object
@@ -43,8 +42,8 @@ type DbackupReconciler struct {
 }
 type realTime struct{}
 
-func (t realTime) Now() time.Time { 
-	return time.Now() 
+func (t realTime) Now() time.Time {
+	return time.Now()
 }
 
 type Time interface {
@@ -77,24 +76,18 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	log := log.FromContext(ctx)
 
 	/*
-			Load Dbackup Object by Name
-			Using Kubernetes client the object with be fetched
-		Using Kubernetes client the object with be fetched
-			Using Kubernetes client the object with be fetched
-			ex.
+		Load Dbackup Object by Name
+		Using Kubernetes client the object will be fetched
 		ex.
-			ex.
-				apiVersion: batch.k8s.htw-berlin.de/v1
-				kind: Dbackup
-				metadata:
-				name: dbackup-sample
+			apiVersion: batch.k8s.htw-berlin.de/v1
+			kind: Dbackup
+			metadata:
+			name: dbackup-sample
 	*/
 
 	var dbackup batchv1.Dbackup
 	if err := r.Get(ctx, req.NamespacedName, &dbackup); err != nil {
-		log.Error(err, "unable to fetch CronJob")
-		// Ignore not found objects as they can't be fixed
-		// On deletation event the object will be ommited
+		log.Error(err, "unable to fetch Dbackup Object")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -104,7 +97,7 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	*/
 	var kubeJobs kubebatchv1.JobList
 	if err := r.List(ctx, &kubeJobs, client.InNamespace(req.Namespace)); err != nil {
-		log.Error(err, "unable to list Jobs")
+		log.Error(err, "unable to list Kubernetes Jobs")
 		return ctrl.Result{}, err
 	}
 
@@ -123,6 +116,9 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return false, ""
 	}
 
+	/*
+		Extract scheduled-at from annotation
+	*/
 	getScheduledTimeForJob := func(job *kubebatchv1.Job) (*time.Time, error) {
 		raw := job.Annotations[annotation]
 		if len(raw) == 0 {
@@ -162,47 +158,55 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	dbackup.Status.Active = nil
-	for _, activeJob := range activeKubeJobs {
-		jobRef, err := ref.GetReference(r.Scheme, activeJob)
+	for _, activeKubeJob := range activeKubeJobs {
+		jobRefrence, err := reference.GetReference(r.Scheme, activeKubeJob)
 		if err != nil {
-			log.Error(err, "unable to make reference to active job", "job", activeJob)
+			log.Error(err, "No reference to active kubernetes job", "Kubernetes job", activeKubeJob)
 			continue
 		}
-		dbackup.Status.Active = append(dbackup.Status.Active, *jobRef)
+		dbackup.Status.Active = append(dbackup.Status.Active, *jobRefrence)
 	}
 
 	log.V(1).Info("jobs", "active kube jobs", len(activeKubeJobs),
 		"successful kube jobs", len(successfulKubeJobs),
 		"failed kube jobs", len(failedKubeJobs))
 
+	/*
+		Update Dbackup Status
+	*/
 	if err := r.Status().Update(ctx, &dbackup); err != nil {
 		log.Error(err, "unable to update Dbackup status")
 		return ctrl.Result{}, err
 	}
 
-	getNextSchedule := func(dbackup *batchv1.Dbackup, now time.Time) (last time.Time, next time.Time, err error) {
-		sched, err := cron.ParseStandard(dbackup.Spec.Schedule)
+	/*
+		Extract next schedule based on the first creation of the a job -> var earliest
+		and the givin cron specification -> cron.ParseStandard(dbackup.Spec.Schedule)
+	*/
+	extractNextSchedule := func(dbackup *batchv1.Dbackup, now time.Time) (last time.Time, next time.Time, err error) {
+		schedule, err := cron.ParseStandard(dbackup.Spec.Schedule)
 		if err != nil {
 			return time.Time{}, time.Time{}, fmt.Errorf("Unparseable schedule %q: %v", dbackup.Spec.Schedule, err)
 		}
-		
+
 		earliest := dbackup.ObjectMeta.CreationTimestamp.Time
-		
 
 		if earliest.After(now) {
-			return time.Time{}, sched.Next(now), nil
+			return time.Time{}, schedule.Next(now), nil
 		}
 
-		return last, sched.Next(now), nil
+		return last, schedule.Next(now), nil
 	}
 
-	missed, next, err := getNextSchedule(&dbackup, r.Now())
+	missed, next, err := extractNextSchedule(&dbackup, r.Now())
 	if err != nil {
 		log.Error(err, "When is next schedule?")
 		return ctrl.Result{}, nil
 	}
 
-	// event request from the controller
+	/*
+		Requst a reconcile on schedule time
+	*/
 	result := ctrl.Result{RequeueAfter: next.Sub(r.Now())}
 	log = log.WithValues("now", r.Now(), "next", next)
 
@@ -211,22 +215,26 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return result, nil
 	}
 
+	/*
+		Forbid deleting the running job if the policy is forbid
+	*/
 	if dbackup.Spec.ConcurrencyPolicy == batchv1.Forbid && len(activeKubeJobs) > 0 {
-		log.V(1).Info("concurrency policy blocks concurrent runs, skipping", "num active", len(activeKubeJobs))
+		log.V(1).Info("Policy Forbids creation", "Active Jobs", len(activeKubeJobs))
 		return result, nil
 	}
 
-	// ...or instruct us to replace existing ones...
+	/*
+		if the pocliy specifices to replace running jobs in the same time
+		the running job should be deleted and replaced
+	*/
 	if dbackup.Spec.ConcurrencyPolicy == batchv1.Replace {
-		for _, activeJob := range activeKubeJobs {
-			// we don't care if the job was already deleted
-			if err := r.Delete(ctx, activeJob, client.PropagationPolicy(metav1.DeletePropagationBackground)); client.IgnoreNotFound(err) != nil {
-				log.Error(err, "unable to delete active job", "job", activeJob)
+		for _, activeKubeJob := range activeKubeJobs {
+			if err := r.Delete(ctx, activeKubeJob, client.PropagationPolicy(metav1.DeletePropagationBackground)); client.IgnoreNotFound(err) != nil {
+				log.Error(err, "unable to delete running kubernetes job", "job", activeKubeJob)
 				return ctrl.Result{}, err
 			}
 		}
 	}
-
 
 	/*
 		function stored in avariable to create a job object with the name of the Dbackup object and time unix signature
@@ -257,14 +265,17 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return job, nil
 	}
 
-	// create the job
+	/*
+		Create a Kubernets Job object from the given specification
+	*/
 	job, err := createBackupJob(&dbackup, missed)
-
 	if err != nil {
 		log.Error(err, "unable to create job object")
 	}
 
-	// create the job in the cluster
+	/*
+		Reconcile to create the actaual job owned by the operaotr to run the backup
+	*/
 	if err := r.Create(ctx, job); err != nil {
 		log.Error(err, "unable to create Job for Dbackup", "job", job)
 		return ctrl.Result{}, err
@@ -274,15 +285,11 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	return result, nil
 }
 
-var apiGroupVersion     = batchv1.GroupVersion.String()
-var owner 				= ".metadata.controller"
-
+var apiGroupVersion = batchv1.GroupVersion.String()
+var owner = ".metadata.controller"
 
 func (r *DbackupReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
 	r.Time = realTime{}
-
-
 	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &kubebatchv1.Job{}, owner, func(rawObj client.Object) []string {
 		job := rawObj.(*kubebatchv1.Job)
 		owner := metav1.GetControllerOf(job)

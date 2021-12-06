@@ -7832,9 +7832,6 @@ spec:
                       type: string
                   type: object
                 type: array
-              lastScheduleTime:
-                format: date-time
-                type: string
             type: object
         type: object
     served: true

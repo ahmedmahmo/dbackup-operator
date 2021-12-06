@@ -65,9 +65,6 @@ const (
 type DbackupStatus struct {
 	// +optional
 	Active []corev1.ObjectReference `json:"active,omitempty"`
-
-	// +optional
-	LastBackupTime *metav1.Time `json:"lastScheduleTime,omitempty"`
 }
 
 //+kubebuilder:object:root=true

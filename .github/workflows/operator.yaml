@@ -1,9 +1,11 @@
 on:
   push:
-    branches:
+    branches:    
+      # Push events on main branch
       - *
-    tags:
-      - *
+    tags:        
+      # Push events to tag v sequence
+      - v*  
 
 jobs:
   build-push:

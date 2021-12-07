@@ -183,8 +183,8 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		Extract next schedule based on the first creation of the a job -> var earliest
 		and the givin cron specification -> cron.ParseStandard(dbackup.Spec.Schedule)
 	*/
-	extractNextSchedule := func(dbackup *batchv1.Dbackup, now time.Time) (last time.Time, next time.Time, err error) {
-		schedule, err := cron.ParseStandard(dbackup.Spec.Schedule)
+	getNextSchedule := func(dbackup *batchv1.Dbackup, now time.Time) (lastMissed time.Time, next time.Time, err error) {
+		sched, err := cron.ParseStandard(dbackup.Spec.Schedule)
 		if err != nil {
 			return time.Time{}, time.Time{}, fmt.Errorf("Unparseable schedule %q: %v", dbackup.Spec.Schedule, err)
 		}
@@ -192,13 +192,17 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		earliest := dbackup.ObjectMeta.CreationTimestamp.Time
 
 		if earliest.After(now) {
-			return time.Time{}, schedule.Next(now), nil
+			return time.Time{}, sched.Next(now), nil
 		}
 
-		return last, schedule.Next(now), nil
+		for t := sched.Next(earliest); !t.After(now); t = sched.Next(t) {
+			fmt.Println("t:", t)
+			lastMissed = t
+		}
+		return lastMissed, sched.Next(now), nil
 	}
 
-	missed, next, err := extractNextSchedule(&dbackup, r.Now())
+	missed, next, err := getNextSchedule(&dbackup, r.Now())
 	if err != nil {
 		log.Error(err, "When is next schedule?")
 		return ctrl.Result{}, nil
@@ -251,13 +255,7 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			},
 			Spec: *backupJob.Spec.BackupTemplate.Spec.DeepCopy(),
 		}
-		for k, v := range dbackup.Spec.BackupTemplate.Annotations {
-			job.Annotations[k] = v
-		}
-		job.Annotations[annotation] = creationTime.Format(time.RFC3339)
-		for k, v := range dbackup.Spec.BackupTemplate.Labels {
-			job.Labels[k] = v
-		}
+
 		if err := ctrl.SetControllerReference(&dbackup, job, r.Scheme); err != nil {
 			return nil, err
 		}

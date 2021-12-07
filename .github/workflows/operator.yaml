@@ -2,10 +2,10 @@ on:
   push:
     branches:    
       # Push events on main branch
-      - "*"
+      - "master"
     tags:        
       # Push events to tag v sequence
-      - v*  
+      - "v*" 
 
 jobs:
   build-push:

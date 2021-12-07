@@ -17,34 +17,45 @@ limitations under the License.
 package v1
 
 import (
-	kubebatchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // DbackupSpec defines the desired state of Dbackup
 type DbackupSpec struct {
+	// Cron syntax
 	//+kubebuilder:validation:MinLength=0
 	Schedule string `json:"schedule"`
 
-	//+kubebuilder:validation:MinLength=0
-	DatabaseTarget string `json:"databaseTarget"`
-
-	// v1 will support only AWS
-	//+kubebuilder:validation:Enum=AWS
-	CloudProvider string `json:"cloudProvider"`
-
-	//+kubebuilder:validation:MinLength=0
-	BucketEndpoint string `json:"bucketEndpoint"`
-
-	// v1 will only support Postgres
-	//+kubebuilder:validation:Enum=Postgres
-	DatabaseType string `json:"databaseType"`
-
-	BackupTemplate kubebatchv1.JobTemplateSpec `json:"backupTemplate"`
-
+	// Policy of many jobs runnign at the same time
 	// +optional
 	ConcurrencyPolicy Policy `json:"concurrencyPolicy,omitempty"`
+
+	// Database specifications
+	Database Database `json:"database"`
+
+	// Cloud specifications
+	Cloud Cloud `json:"cloud"`
+}
+
+type Database struct {
+	// +kubebuilder:validation:Enum=postgres;mysql
+	//+kubebuilder:validation:MinLength=0
+	Type string `json:"type"`
+
+	//+kubebuilder:validation:MinLength=0
+	Host string `json:"host"`
+
+	//+kubebuilder:validation:MinLength=0
+	Password string `json:"password"`
+}
+
+type Cloud struct {
+	// +kubebuilder:validation:Enum=aws;azure;gcp
+	Provider string `json:"provider"`
+
+	//+kubebuilder:validation:MinLength=0
+	Bucket string `json:"bucket"`
 }
 
 // +kubebuilder:validation:Enum=Allow;Forbid;Replace

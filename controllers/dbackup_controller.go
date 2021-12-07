@@ -253,7 +253,20 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 				Labels:      make(map[string]string),
 				Annotations: make(map[string]string),
 			},
-			Spec: *backupJob.Spec.BackupTemplate.Spec.DeepCopy(),
+			Spec: kubebatchv1.JobSpec{
+
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						RestartPolicy: "OnFailure",
+						Containers: []corev1.Container{
+							{
+								Name:  "busybox",
+								Image: "busybox",
+							},
+						},
+					},
+				},
+			},
 		}
 
 		if err := ctrl.SetControllerReference(&dbackup, job, r.Scheme); err != nil {

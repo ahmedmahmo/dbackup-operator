@@ -1,8 +1,6 @@
-[![Go Report Card](https://goreportcard.com/badge/sigs.k8s.io/kubebuilder)](https://goreportcard.com/report/sigs.k8s.io/kubebuilder)
-![Operator CI](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
-![Issues](https://github.com/ahmedmahmo/dbackup-operator/issues)
-
-
+![Operator Build CI](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
+[![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat)](https://github.com/ahmedmahmo/dbackup-operator/releases)
+[![Issues](https://img.shields.io/badge/issues-enabled-brightgreen.svg)](https://github.com/ahmedmahmo/dbackup-operator/issues)
 
 
 <!-- PROJECT LOGO -->

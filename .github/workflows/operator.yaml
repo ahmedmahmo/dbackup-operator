@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - *
+    tags:
+      - *
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: github action slug
+        uses: rlespinasse/github-slug-action@v3.x
+      - run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
+        name: setup repo name
+        shell: bash
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        name: Build & push Docker image
+        with:
+          image: ${{ env.REPOSITORY_NAME }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: "docker.io"
+          tag: ${{ env.GITHUB_REF_SLUG }}
+          

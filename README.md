@@ -1,10 +1,8 @@
 [![Go Report Card](https://goreportcard.com/badge/sigs.k8s.io/kubebuilder)](https://goreportcard.com/report/sigs.k8s.io/kubebuilder)
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+![Operator CI](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
+[![LinkedIn][linkedin-shield]][https://www.linkedin.com/in/ahmedmahmoud25/]
+[![Issues][issues-shield]][https://github.com/ahmedmahmo/dbackup-operator/issues]
+
 
 
 

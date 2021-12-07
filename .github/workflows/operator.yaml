@@ -2,7 +2,7 @@ on:
   push:
     branches:    
       # Push events on main branch
-      - *
+      - "*"
     tags:        
       # Push events to tag v sequence
       - v*  

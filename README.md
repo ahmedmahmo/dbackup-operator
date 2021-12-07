@@ -1,7 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/sigs.k8s.io/kubebuilder)](https://goreportcard.com/report/sigs.k8s.io/kubebuilder)
 ![Operator CI](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
-[![LinkedIn][linkedin-shield]][https://www.linkedin.com/in/ahmedmahmoud25/]
-[![Issues][issues-shield]][https://github.com/ahmedmahmo/dbackup-operator/issues]
+[![Issues][issues-shield]](https://github.com/ahmedmahmo/dbackup-operator/issues)
 
 
 

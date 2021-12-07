@@ -1,7 +1,5 @@
-![Operator Build CI](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
-[![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat)](https://github.com/ahmedmahmo/dbackup-operator/releases)
-[![Issues](https://img.shields.io/badge/issues-enabled-brightgreen.svg)](https://github.com/ahmedmahmo/dbackup-operator/issues)
-
+![example workflow](https://github.com/ahmedmahmo/dbackup-operator/actions/workflows/operator.yaml/badge.svg)
+[![GitHub issues open](https://img.shields.io/github/issues/network-tools/shconfparser.svg)](https://github.com/ahmedmahmo/dbackup-operator/issues)
 
 <!-- PROJECT LOGO -->
 <br />

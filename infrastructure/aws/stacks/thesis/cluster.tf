@@ -45,6 +45,6 @@ resource "aws_eip" "master" {
 }
 
 resource "aws_eip_association" "master" {
-  allocation_id = aws_eip.kube_master.id
+  allocation_id = aws_eip.master.id
   instance_id   = aws_instance.kube_master.id
 }

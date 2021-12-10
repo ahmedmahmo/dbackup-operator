@@ -35,12 +35,16 @@ resource "aws_instance" "kube_nodes" {
   for_each = local.workers
   instance_type = each.value
   user_data = file("${path.module}/scripts/node.sh")
-  ebs_block_device {
-    device_name = "/dev/xvd*"
-    volume_type = "gp2"
-    volume_size = 50
-  }
   tags = {
     Name = "tf-${each.key}"
   }
+}
+
+resource "aws_eip" "master" {
+  vpc  = true
+}
+
+resource "aws_eip_association" "master" {
+  allocation_id = aws_eip.kube_master.id
+  instance_id   = aws_instance.kube_master.id
 }

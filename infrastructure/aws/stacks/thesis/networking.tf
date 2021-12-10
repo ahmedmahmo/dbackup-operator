@@ -26,7 +26,7 @@ resource "aws_vpc" "main" {
 
 # Create a private subnet with CIDR 24
 resource "aws_subnet" "private_subnet" {
-  vpc_id     = aws_key_pair.main.id
+  vpc_id     = aws_vpc.main.id
   cidr_block = "192.168.0.0/24"
   availability_zone = "${var.region}a"
 
@@ -37,7 +37,7 @@ resource "aws_subnet" "private_subnet" {
 
 # Create public subnet with CIDR 24
 resource "aws_subnet" "public_subnet" {
-  vpc_id     = aws_key_pair.main.id
+  vpc_id     = aws_vpc.main.id
   cidr_block = "192.168.1.0/24"
   availability_zone = "${var.region}b"
   map_public_ip_on_launch = true
@@ -49,7 +49,7 @@ resource "aws_subnet" "public_subnet" {
 
 // Create public facing internet gateway
 resource "aws_internet_gateway" "main" {
-  vpc_id = aws_key_pair.main.id
+  vpc_id = aws_vpc.main.id
 
   tags = {
     Name = "tf-internet-gateway"
@@ -58,7 +58,7 @@ resource "aws_internet_gateway" "main" {
 
 # Create a routing table for Internet gateway
 resource "aws_route_table" "main" {
-  vpc_id = aws_key_pair.main.id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"

@@ -26,7 +26,6 @@ variable "region" {
 
 locals {
   cluster_name = "thesis-cluster"
-  public_key = "~/.ssh/id_rsa.pub"
   ami = "ami-0b1deee75235aa4bb"
   master = "t3.medium"
   workers = {

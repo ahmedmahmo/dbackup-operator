@@ -14,14 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-resource "aws_key_pair" "main" {
-  key_name_prefix = "${local.cluster_name}-"
-  public_key      = file(local.public_key)
-}
 
 resource "aws_instance" "kube_master" {
   ami = local.ami
-  key_name = aws_key_pair.main.key_name
+  key_name = "ahmed-private-key"
   instance_type = local.master
   vpc_security_group_ids = [aws_security_group.kube.id]
   subnet_id = aws_subnet.public_subnet.id
@@ -33,7 +29,7 @@ resource "aws_instance" "kube_master" {
 
 resource "aws_instance" "kube_nodes" {
   ami = local.ami
-  key_name = aws_key_pair.main.key_name
+  key_name = "ahmed-private-key"
   vpc_security_group_ids = [aws_security_group.kube.id]
   subnet_id = aws_subnet.public_subnet.id
   for_each = local.workers

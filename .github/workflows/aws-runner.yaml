@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:    
+      # Push events on main branch
+      - "master"
+    tags:        
+      # Push events to tag v sequence
+      - "aws*" 
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: github action slug
+        uses: rlespinasse/github-slug-action@v3.x
+      - run: echo REPOSITORY_NAME="dbackup-postgres-aws" >> $GITHUB_ENV
+        name: setup repo name
+      - run: echo REPOSITORY_PATH="runner/aws" >> $GITHUB_ENV
+        name: setup repo path
+        shell: bash
+      - name: build image
+        run: |
+          pwd
+          ls

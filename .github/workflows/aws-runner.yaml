@@ -22,9 +22,9 @@ jobs:
         shell: bash
       - name: build image
         run: |
-          cd $REPOSITORY_PATH
+          cd ${{ env.REPOSITORY_PATH }}
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.GITHUB_REF_SLUG }} .
       - name: push image
         run: |
-          cd $REPOSITORY_PATH
+          cd ${{ env.REPOSITORY_PATH }}
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.GITHUB_REF_SLUG }}

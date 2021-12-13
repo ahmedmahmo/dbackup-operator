@@ -27,5 +27,4 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: "docker.io"
-          tags: ${{ env.GITHUB_REF_SLUG }}
-          
+          tags: ${{ env.GITHUB_REF_SLUG }}         

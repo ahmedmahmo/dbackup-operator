@@ -20,9 +20,13 @@ jobs:
       - run: echo REPOSITORY_PATH="runner/aws" >> $GITHUB_ENV
         name: setup repo path
         shell: bash
+      - name: docker login
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: build image
         run: |
           cd ${{ env.REPOSITORY_PATH }}
+          pwd
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.GITHUB_REF_SLUG }} .
       - name: push image
         run: |

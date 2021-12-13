@@ -1,0 +1,26 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: example-role
+rules:
+- apiGroups:
+  - app
+  resources:
+  - deployments
+  verbs: ["create", "delete", "list", "update", "watch"]
+
+- apiGroups:
+  - "" #indicates for API group core
+  resources:
+  - ["pods", "secrets"]
+  verbs: ["create", "delete", "list", "update", "watch"]
+
+- apiGroups:
+  - example.deploy.htw-berlin.de
+  resources:
+  - example
+  verbs: ["create", "delete", "list", "update", "watch", "patch", "get"]
+
+
+
+

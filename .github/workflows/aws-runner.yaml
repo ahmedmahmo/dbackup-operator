@@ -23,8 +23,8 @@ jobs:
       - name: build image
         run: |
           cd $REPOSITORY_PATH
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/$REPOSITORY_NAME:${{ env.GITHUB_REF_SLUG }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.GITHUB_REF_SLUG }} .
       - name: push image
         run: |
           cd $REPOSITORY_PATH
-          docker push ${{ secrets.DOCKER_USERNAME }}/$REPOSITORY_NAME:${{ env.GITHUB_REF_SLUG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.GITHUB_REF_SLUG }}

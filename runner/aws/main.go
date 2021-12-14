@@ -34,15 +34,15 @@ var (
 	// AWS Variables
 	AWS_S3_REGION         = utils.GetEnvVariable("AWS_S3_REGION", "eu-central-1")
 	AWS_S3_BUCKET 	      = utils.GetEnvVariable("AWS_S3_BUCKET", "kubebucketforbackup")
-	AWS_ACCESS_KEY_ID     = utils.GetEnvVariable("AWS_ACCESS_KEY_ID", "AKIAXT4VAJYPB7X55Z7R")
-	AWS_SECRET_ACCESS_KEY = utils.GetEnvVariable("AWS_SECRET_ACCESS_KEY", "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")
+	AWS_ACCESS_KEY_ID     = utils.GetEnvVariable("AWS_ACCESS_KEY_ID", "")
+	AWS_SECRET_ACCESS_KEY = utils.GetEnvVariable("AWS_SECRET_ACCESS_KEY", "")
 
 	// Postgres variables
 	POSTGRES_HOST 		  = utils.GetEnvVariable("POSTGRES_HOST", "localhost")
 	POSTGRES_PORT		  = utils.GetEnvVariable("POSTGRES_PORT", "5432")
-	POSTGRES_DATABASE     = utils.GetEnvVariable("POSTGRES_DATABASE", "postgres")
+	POSTGRES_DATABASE     = utils.GetEnvVariable("POSTGRES_DATABASE", "dvdrental")
 	POSTGRES_USERNAME     = utils.GetEnvVariable("POSTGRES_USERNAME", "postgres")
-	POSTGRES_PASSWORD     = utils.GetEnvVariable("POSTGRES_PASSWORD", "password")			
+	POSTGRES_PASSWORD     = utils.GetEnvVariable("POSTGRES_PASSWORD", "1234")			
 )
 
 func main()  {
@@ -63,7 +63,6 @@ func main()  {
 		Password: POSTGRES_PASSWORD,
 		})
 
-	dump.SetPath("/tmp/")
 
 	exec := dump.Exec(pg_commands.ExecOptions{StreamPrint: false})
 	if exec.Error != nil {

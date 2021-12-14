@@ -13,10 +13,9 @@ COPY main.go main.go
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o aws-runner main.go
 
 
-FROM gcr.io/distroless/static:nonroot
+FROM postgres
 WORKDIR /
 COPY --from=builder /workspace/aws-runner .
-COPY run.sh run.sh
 USER 65532:65532
 
 ENTRYPOINT ["/aws-runner"]

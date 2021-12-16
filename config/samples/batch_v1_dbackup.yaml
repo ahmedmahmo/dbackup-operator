@@ -6,10 +6,10 @@ spec:
   schedule: "*/1 * * * *"
   database:
     type: postgres
-    host: postgres.postgres.svc.cluster.local:5432
-    password: dummydummy
+    host: "postgres.postgres.svc.cluster.local"
+    password: "1234"
   cloud:
     provider: aws
     bucket: s3://backup
-    secretId: 
-    secretPasswordId: 
+    secretId: ""
+    secretPasswordId: ""

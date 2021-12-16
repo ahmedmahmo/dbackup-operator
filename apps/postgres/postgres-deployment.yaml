@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: postgres
   namespace: postgres
+  labels:
+    app: postgres
 spec:
   replicas: 1
   selector:
@@ -13,20 +15,13 @@ spec:
       labels:
         app: postgres
     spec:
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: postgres-data-pvc
       containers:
         - name: postgres
           image: postgres
-          volumeMounts:
-            - mountPath: "/var/lib/postgresql/data"
-              name: data
           imagePullPolicy: Always
           tty: true
           env:
             - name: POSTGRES_PASSWORD
-              value: dummydummy
+              value: "1234"
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata

@@ -19,10 +19,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 	"strconv"
+	"time"
 
 	utils "github.com/ahmedmahmo/discovery-operator/runner/aws/utils"
-	pg_commands "github.com/habx/pg-commands"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -38,41 +40,60 @@ var (
 	AWS_SECRET_ACCESS_KEY = utils.GetEnvVariable("AWS_SECRET_ACCESS_KEY", "")
 
 	// Postgres variables
-	POSTGRES_HOST 		  = utils.GetEnvVariable("POSTGRES_HOST", "localhost")
+	POSTGRES_HOST 		  = utils.GetEnvVariable("POSTGRES_HOST", "postgres.postgres.svc.cluster.local")
 	POSTGRES_PORT		  = utils.GetEnvVariable("POSTGRES_PORT", "5432")
 	POSTGRES_DATABASE     = utils.GetEnvVariable("POSTGRES_DATABASE", "dvdrental")
 	POSTGRES_USERNAME     = utils.GetEnvVariable("POSTGRES_USERNAME", "postgres")
 	POSTGRES_PASSWORD     = utils.GetEnvVariable("POSTGRES_PASSWORD", "1234")			
 )
 
+const (
+	command = "pg_dump"
+)
+
 func main()  {
 	fmt.Println("Runner is up...")
 	fmt.Printf("Starting dump from %s\n", POSTGRES_HOST)
 
-	port, err := strconv.Atoi(POSTGRES_PORT)
-    if err != nil {
+	f := strings.Join([]string{
+		POSTGRES_DATABASE,
+		"-",
+		strconv.FormatInt(
+		time.Now().Unix(), 10),
+		".sql",
+	},"")
+
+	arguments := []string{}
+	arguments = append(arguments, "--no-owner")
+	arguments = append(arguments, "--verbose")
+	arguments = append(arguments, strings.Join([]string{
+		"--dbname=postgresql://",
+		POSTGRES_USERNAME,
+		":",
+		POSTGRES_PASSWORD,
+		"@",
+		POSTGRES_HOST,
+		":",
+		POSTGRES_PORT,
+		"/",
+		POSTGRES_DATABASE,
+	}, ""))
+
+	arguments = append(arguments, "-f")
+	arguments = append(arguments, f)
+
+
+	cmd := exec.Command(command, arguments...)
+	err := cmd.Run()
+	
+	if err != nil {
+		fmt.Println(err)
 		panic(err)
+	}else {
+		fmt.Printf("Dumped successfully to %s", f)
 	}
 
-	dump := pg_commands.NewDump(
-		&pg_commands.Postgres{
-		Host    : POSTGRES_HOST,
-		Port    : port,
-		DB      : POSTGRES_DATABASE,
-		Username: POSTGRES_USERNAME,
-		Password: POSTGRES_PASSWORD,
-		})
-
-
-	exec := dump.Exec(pg_commands.ExecOptions{StreamPrint: false})
-	if exec.Error != nil {
-		fmt.Println(exec.Error.Err)
-    	fmt.Println(exec.FullCommand)
-	} else {
-		fmt.Println("Dump success")
-		fmt.Printf("File %s:", exec.File)
-	}
-
+	
 	fmt.Println("Starting uploading dump ")
 	s3Configration := &aws.Config{
 		Region: aws.String(AWS_S3_REGION),
@@ -87,15 +108,15 @@ func main()  {
 	
 	uploadManger := s3manager.NewUploader(s3Session)
 	
-	f, err := os.Open(exec.File)
+	opened, err := os.Open(f)
 	if err != nil {
 		panic(err)
 	}
 
 	result, err := uploadManger.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(AWS_S3_BUCKET),
-		Key:    aws.String(exec.File),
-		Body:   f,
+		Key:    aws.String(f),
+		Body:   opened,
 	})
 	if err != nil {
 		panic(err)

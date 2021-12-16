@@ -262,8 +262,50 @@ func (r *DbackupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 						Containers: []corev1.Container{
 							{
 								Name:            "pg-dump",
-								Image:           "ahmedmahmoud25/pg_dump:latest",
+								Image:           "ahmedmahmoud25/dbackup-postgres-aws:dev",
 								ImagePullPolicy: corev1.PullAlways,
+								Env: []corev1.EnvVar{
+									{
+										Name:  "AWS_S3_REGION",
+										Value: "eu-central-1",
+									},
+									{
+										Name:  "AWS_S3_BUCKET",
+										Value: "kubebucketforbackup",
+									},
+									{
+										Name:  "AWS_ACCESS_KEY_ID",
+										Value: "",
+									},
+									{
+										Name:  "AWS_SECRET_ACCESS_KEY",
+										Value: "",
+									},
+									{
+										Name:  "POSTGRES_HOST",
+										Value: "postgres.postgres.svc.cluster.local",
+									},
+									{
+										Name:  "POSTGRES_PORT",
+										Value: "5432",
+									},
+									{
+										Name:  "POSTGRES_DATABASE",
+										Value: "dvdrental",
+									},
+									{
+										Name:  "POSTGRES_USERNAME",
+										Value: "postgres",
+									},
+									{
+										Name:  "POSTGRES_PASSWORD",
+										Value: "1234",
+									},
+									{
+										Name:  "PGPASSWORD",
+										Value: "1234",
+									},
+								},
 							},
 						},
 					},

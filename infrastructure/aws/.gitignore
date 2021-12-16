@@ -3,6 +3,7 @@
 *.env
 .idea
 *.pem
+*.pub
 facilioo-backend.yaml
 .local
 # .tfstate files

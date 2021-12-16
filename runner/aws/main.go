@@ -34,17 +34,17 @@ import (
 
 var (
 	// AWS Variables
-	AWS_S3_REGION         = utils.GetEnvVariable("AWS_S3_REGION", "eu-central-1")
-	AWS_S3_BUCKET 	      = utils.GetEnvVariable("AWS_S3_BUCKET", "kubebucketforbackup")
+	AWS_S3_REGION         = utils.GetEnvVariable("AWS_S3_REGION", "")
+	AWS_S3_BUCKET 	      = utils.GetEnvVariable("AWS_S3_BUCKET", "")
 	AWS_ACCESS_KEY_ID     = utils.GetEnvVariable("AWS_ACCESS_KEY_ID", "")
 	AWS_SECRET_ACCESS_KEY = utils.GetEnvVariable("AWS_SECRET_ACCESS_KEY", "")
 
 	// Postgres variables
-	POSTGRES_HOST 		  = utils.GetEnvVariable("POSTGRES_HOST", "postgres.postgres.svc.cluster.local")
-	POSTGRES_PORT		  = utils.GetEnvVariable("POSTGRES_PORT", "5432")
-	POSTGRES_DATABASE     = utils.GetEnvVariable("POSTGRES_DATABASE", "dvdrental")
-	POSTGRES_USERNAME     = utils.GetEnvVariable("POSTGRES_USERNAME", "postgres")
-	POSTGRES_PASSWORD     = utils.GetEnvVariable("POSTGRES_PASSWORD", "1234")			
+	POSTGRES_HOST 		  = utils.GetEnvVariable("POSTGRES_HOST", "")
+	POSTGRES_PORT		  = utils.GetEnvVariable("POSTGRES_PORT", "")
+	POSTGRES_DATABASE     = utils.GetEnvVariable("POSTGRES_DATABASE", "")
+	POSTGRES_USERNAME     = utils.GetEnvVariable("POSTGRES_USERNAME", "")
+	POSTGRES_PASSWORD     = utils.GetEnvVariable("POSTGRES_PASSWORD", "")			
 )
 
 const (
@@ -54,6 +54,8 @@ const (
 func main()  {
 	fmt.Println("Runner is up...")
 	fmt.Printf("Starting dump from %s\n", POSTGRES_HOST)
+
+	fmt.Println("Envs: \n", POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USERNAME, POSTGRES_PASSWORD)
 
 	f := strings.Join([]string{
 		POSTGRES_DATABASE,
@@ -95,6 +97,7 @@ func main()  {
 
 	
 	fmt.Println("Starting uploading dump ")
+	fmt.Println("Envs: \n", AWS_S3_REGION, AWS_S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 	s3Configration := &aws.Config{
 		Region: aws.String(AWS_S3_REGION),
 		Credentials: credentials.NewStaticCredentials(

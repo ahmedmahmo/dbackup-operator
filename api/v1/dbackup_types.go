@@ -36,18 +36,15 @@ type DbackupSpec struct {
 
 	// Cloud specifications
 	Cloud Cloud `json:"cloud"`
+
+	// +optional
+	Env []corev1.EnvVar `json:"env"`
 }
 
 type Database struct {
 	// +kubebuilder:validation:Enum=postgres;mysql
 	//+kubebuilder:validation:MinLength=0
 	Type string `json:"type"`
-
-	//+kubebuilder:validation:MinLength=0
-	Host string `json:"host"`
-
-	//+kubebuilder:validation:MinLength=0
-	Password string `json:"password"`
 }
 
 type Cloud struct {

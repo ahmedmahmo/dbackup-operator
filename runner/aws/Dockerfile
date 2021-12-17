@@ -21,6 +21,5 @@ FROM postgres
 WORKDIR /
 COPY --from=builder /workspace/aws-runner .
 COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-USER 65532:65532
 
 ENTRYPOINT ["/aws-runner"]
